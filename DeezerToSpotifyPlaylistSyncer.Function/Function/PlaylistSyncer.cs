@@ -12,7 +12,7 @@ public class PlaylistSyncer(ILogger<PlaylistSyncer> logger, IDeezerPlaylistServi
 	private readonly ISpotifyPlaylistService _spotifyPlaylistService = spotifyPlaylistService ?? throw new ArgumentNullException(nameof(spotifyPlaylistService));
 
 	[Function(nameof(PlaylistSyncer))]
-	public async Task RunAsync([TimerTrigger("0 0 0 * * *")] TimerInfo myTimer)
+	public async Task RunAsync([TimerTrigger("0 0 */1 * * *")] TimerInfo myTimer)
 	{
 		this._logger.LogInformation("Playlist syncer started");
 		var deezerPlaylist = await this._deezerPlaylistService.GetPlaylistAsync();
@@ -22,7 +22,7 @@ public class PlaylistSyncer(ILogger<PlaylistSyncer> logger, IDeezerPlaylistServi
 			return;
 		}
 
-		var spotifyTrackIds = await this._spotifyPlaylistService.GetTrackIdsAsync(deezerPlaylist);
+		var spotifyTracks = await this._spotifyPlaylistService.GetTrackIdsAsync(deezerPlaylist);
 		var spotifyPlaylist = await this._spotifyPlaylistService.GetPlaylistAsync();
 		if (spotifyPlaylist is null)
 		{
@@ -30,8 +30,8 @@ public class PlaylistSyncer(ILogger<PlaylistSyncer> logger, IDeezerPlaylistServi
 			return;
 		}
 
-		await this._spotifyPlaylistService.AddMissingTracksAsync(spotifyPlaylist, spotifyTrackIds);
-		// await this._spotifyPlaylistService.RemoveOldTracksAsync(spotifyPlaylist, spotifyTrackIds);
+		await this._spotifyPlaylistService.AddMissingTracksAsync(spotifyPlaylist, spotifyTracks);
+		await this._spotifyPlaylistService.RemoveOldTracksAsync(spotifyPlaylist, spotifyTracks);
 
 		this._logger.LogInformation("Playlist syncer ended");
 	}

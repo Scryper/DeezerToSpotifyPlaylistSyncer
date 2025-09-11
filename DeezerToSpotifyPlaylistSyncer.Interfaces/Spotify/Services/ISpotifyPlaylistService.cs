@@ -6,6 +6,7 @@ namespace DeezerToSpotifyPlaylistSyncer.Interfaces.Spotify.Services;
 public interface ISpotifyPlaylistService
 {
 	Task<SpotifyPlaylist?> GetPlaylistAsync();
-	Task<IList<string>> GetTrackIdsAsync(DeezerPlaylist deezerPlaylist);
-	Task AddMissingTracksAsync(SpotifyPlaylist spotifyPlaylist, IList<string> spotifyTrackIds);
+	Task<IList<SpotifyTrack>> GetTrackIdsAsync(DeezerPlaylist deezerPlaylist);
+	Task AddMissingTracksAsync(SpotifyPlaylist spotifyPlaylist, IList<SpotifyTrack> spotifyTracks);
+	Task RemoveOldTracksAsync(SpotifyPlaylist spotifyPlaylist, IList<SpotifyTrack> spotifyTracks);
 }

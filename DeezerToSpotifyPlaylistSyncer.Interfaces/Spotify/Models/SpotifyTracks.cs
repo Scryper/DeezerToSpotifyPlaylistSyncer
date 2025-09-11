@@ -2,5 +2,6 @@
 
 public class SpotifyTracks
 {
-	public IEnumerable<SpotifyTrack> Items { get; set; }
+	public List<SpotifyTrack> Items { get; set; }
+	public string? Next { get; set; }
 }
