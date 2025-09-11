@@ -17,7 +17,7 @@ public class DeezerPlaylistService(
 	private readonly HttpClient _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 	private readonly DeezerConfiguration _deezerConfiguration = deezerConfiguration.Value ?? throw new ArgumentNullException(nameof(deezerConfiguration));
 
-	public async Task<Playlist?> GetPlaylistAsync()
+	public async Task<DeezerPlaylist?> GetPlaylistAsync()
 	{
 		if (string.IsNullOrWhiteSpace(this._deezerConfiguration.PlaylistId))
 		{
@@ -25,6 +25,6 @@ public class DeezerPlaylistService(
 			return null;
 		}
 
-		return await this._httpClient.GetFromJsonAsync<Playlist>($"/playlist/{this._deezerConfiguration.PlaylistId}");
+		return await this._httpClient.GetFromJsonAsync<DeezerPlaylist>($"playlist/{this._deezerConfiguration.PlaylistId}");
 	}
 }

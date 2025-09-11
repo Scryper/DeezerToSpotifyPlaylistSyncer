@@ -4,5 +4,5 @@ namespace DeezerToSpotifyPlaylistSyncer.Interfaces.Deezer.Services;
 
 public interface IDeezerPlaylistService
 {
-	public Task<Playlist?> GetPlaylistAsync();
+	Task<DeezerPlaylist?> GetPlaylistAsync();
 }
