@@ -2,6 +2,10 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeezerToSpotifyPlaylistSyncer.Function", "DeezerToSpotifyPlaylistSyncer.Function\DeezerToSpotifyPlaylistSyncer.Function.csproj", "{5C5323D5-B595-4478-904E-2A5B8A6B2D9F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeezerToSpotifyPlaylistSyncer.Interfaces", "DeezerToSpotifyPlaylistSyncer.Interfaces\DeezerToSpotifyPlaylistSyncer.Interfaces.csproj", "{95DD38A7-8827-4908-BAB7-CC9DF3E297F4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeezerToSpotifyPlaylistSyncer.Services", "DeezerToSpotifyPlaylistSyncer.Services\DeezerToSpotifyPlaylistSyncer.Services.csproj", "{820B71C4-4DB0-4531-B2C5-0F77BFAAE7E3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +16,13 @@ Global
 		{5C5323D5-B595-4478-904E-2A5B8A6B2D9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5C5323D5-B595-4478-904E-2A5B8A6B2D9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5C5323D5-B595-4478-904E-2A5B8A6B2D9F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95DD38A7-8827-4908-BAB7-CC9DF3E297F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95DD38A7-8827-4908-BAB7-CC9DF3E297F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95DD38A7-8827-4908-BAB7-CC9DF3E297F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95DD38A7-8827-4908-BAB7-CC9DF3E297F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{820B71C4-4DB0-4531-B2C5-0F77BFAAE7E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{820B71C4-4DB0-4531-B2C5-0F77BFAAE7E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{820B71C4-4DB0-4531-B2C5-0F77BFAAE7E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{820B71C4-4DB0-4531-B2C5-0F77BFAAE7E3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
