@@ -9,6 +9,7 @@ using DeezerToSpotifyPlaylistSyncer.Interfaces.Spotify.Configuration;
 using DeezerToSpotifyPlaylistSyncer.Interfaces.Spotify.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.VisualBasic.CompilerServices;
 
 namespace DeezerToSpotifyPlaylistSyncer.Services.Spotify;
 
@@ -83,6 +84,7 @@ public class SpotifyPlaylistService(
 
 		foreach (var batch in batches)
 		{
+			this._logger.LogInformation("Adding tracks to spotify playlist : {Tracks}", string.Join(", ", batch.Select(track => track.Name)));
 			var response = await this._httpClient.PostAsJsonAsync(
 				$"playlists/{this._spotifyConfiguration.PlaylistId}/tracks",
 				new AddTrackRequest { Uris = batch.Select(track => $"spotify:track:{track.Id}") });
@@ -112,6 +114,7 @@ public class SpotifyPlaylistService(
 
 		foreach (var batch in batches)
 		{
+			this._logger.LogInformation("Deleting tracks from spotify playlist : {Tracks}", string.Join(", ", batch.Select(track => track.Track?.Name)));
 			var request = new HttpRequestMessage(HttpMethod.Delete, $"playlists/{this._spotifyConfiguration.PlaylistId}/tracks")
 			{
 				Content = new StringContent(JsonSerializer.Serialize(
