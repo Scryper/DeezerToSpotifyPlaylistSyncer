@@ -51,15 +51,19 @@ public class SpotifyPlaylistService(
 		return playlist;
 	}
 
-	public async Task<IList<SpotifyTrack>> GetTrackIdsAsync(DeezerPlaylist deezerPlaylist)
+	public async Task<IList<SpotifyTrack>> GetTrackIdsAsync(IEnumerable<DeezerTrack> detailedDeezerTracks)
 	{
-		if (deezerPlaylist.Tracks is null)
+		var ids = new List<SpotifyTrack>();
+		foreach (var deezerTrack in detailedDeezerTracks.Where(deezerTrack => deezerTrack.Contributors is not null))
 		{
-			this._logger.LogError("Fatal error : deezer tracks not set");
-			return [];
+			var trackResponse = await this.SearchTrackAsync(deezerTrack.Contributors!.Select(contributor => contributor.Name).ToList(), deezerTrack.Title);
+			if (trackResponse?.Tracks is not null)
+			{
+				ids.Add(trackResponse.Tracks.Items.First());
+			}
 		}
 
-		return await this.SearchTracksAsync(deezerPlaylist.Tracks.Data);
+		return ids;
 	}
 
 	public async Task AddMissingTracksAsync(SpotifyPlaylist spotifyPlaylist, IList<SpotifyTrack> spotifyTracks)
@@ -84,7 +88,7 @@ public class SpotifyPlaylistService(
 
 		foreach (var batch in batches)
 		{
-			this._logger.LogInformation("Adding tracks to spotify playlist : {Tracks}", string.Join(", ", batch.Select(track => track.Name)));
+			this._logger.LogWarning("Adding tracks to spotify playlist : {Tracks}", string.Join(", ", batch.Select(track => track.Name)));
 			var response = await this._httpClient.PostAsJsonAsync(
 				$"playlists/{this._spotifyConfiguration.PlaylistId}/tracks",
 				new AddTrackRequest { Uris = batch.Select(track => $"spotify:track:{track.Id}") });
@@ -114,7 +118,7 @@ public class SpotifyPlaylistService(
 
 		foreach (var batch in batches)
 		{
-			this._logger.LogInformation("Deleting tracks from spotify playlist : {Tracks}", string.Join(", ", batch.Select(track => track.Track?.Name)));
+			this._logger.LogWarning("Deleting tracks from spotify playlist : {Tracks}", string.Join(", ", batch.Select(track => track.Track?.Name)));
 			var request = new HttpRequestMessage(HttpMethod.Delete, $"playlists/{this._spotifyConfiguration.PlaylistId}/tracks")
 			{
 				Content = new StringContent(JsonSerializer.Serialize(
@@ -128,29 +132,15 @@ public class SpotifyPlaylistService(
 		}
 	}
 
-	private async Task<IList<SpotifyTrack>> SearchTracksAsync(IEnumerable<DeezerTrack> deezerTracks)
+	private async Task<SpotifyPlaylist?> SearchTrackAsync(IList<string> artists, string track)
 	{
-		var ids = new List<SpotifyTrack>();
-		foreach (var deezerTrack in deezerTracks)
-		{
-			var trackResponse = await this.SearchTrackAsync(deezerTrack.Artist.Name, deezerTrack.Title);
-			if (trackResponse?.Tracks is not null)
-			{
-				ids.Add(trackResponse.Tracks.Items.First());
-			}
-		}
-
-		return ids;
-	}
-
-	private async Task<SpotifyPlaylist?> SearchTrackAsync(string artist, string track)
-	{
-		var response = await this._httpClient.GetAsync($"search?q={Uri.EscapeDataString($"artist:{artist} track:{track}")}&type=track&limit=1");
+		var artistsQuery = string.Join(" ", artists.Select(artist => $"artist:{artist}"));
+		var response = await this._httpClient.GetAsync($"search?q={Uri.EscapeDataString($"{artistsQuery} track:{track}")}&type=track&limit=1");
 		if (response.StatusCode == HttpStatusCode.TooManyRequests)
 		{
 			var retryAfter = response.Headers.RetryAfter?.Delta?.TotalSeconds ?? 1;
 			await Task.Delay(TimeSpan.FromSeconds(retryAfter));
-			return await this.SearchTrackAsync(artist, track);
+			return await this.SearchTrackAsync(artists, track);
 		}
 
 		return JsonSerializer.Deserialize<SpotifyPlaylist>(await response.Content.ReadAsStringAsync(), this._jsonOptions);
