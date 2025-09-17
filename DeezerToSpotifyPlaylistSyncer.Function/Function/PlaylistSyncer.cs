@@ -14,15 +14,16 @@ public class PlaylistSyncer(ILogger<PlaylistSyncer> logger, IDeezerPlaylistServi
 	[Function(nameof(PlaylistSyncer))]
 	public async Task RunAsync([TimerTrigger("0 0 */1 * * *")] TimerInfo myTimer)
 	{
-		this._logger.LogInformation("Playlist syncer started");
+		this._logger.LogWarning("Playlist syncer started");
 		var deezerPlaylist = await this._deezerPlaylistService.GetPlaylistAsync();
-		if (deezerPlaylist is null)
+		if (deezerPlaylist?.Tracks is null)
 		{
 			this._logger.LogError("Fatal error: deezer playlist not found");
 			return;
 		}
 
-		var spotifyTracks = await this._spotifyPlaylistService.GetTrackIdsAsync(deezerPlaylist);
+		var detailedDeezerTracks = await this._deezerPlaylistService.GetDetailedTracksAsync(deezerPlaylist.Tracks.Data.Select(data => data.Id));
+		var spotifyTracks = await this._spotifyPlaylistService.GetTrackIdsAsync(detailedDeezerTracks);
 		var spotifyPlaylist = await this._spotifyPlaylistService.GetPlaylistAsync();
 		if (spotifyPlaylist is null)
 		{
@@ -33,6 +34,6 @@ public class PlaylistSyncer(ILogger<PlaylistSyncer> logger, IDeezerPlaylistServi
 		await this._spotifyPlaylistService.AddMissingTracksAsync(spotifyPlaylist, spotifyTracks);
 		await this._spotifyPlaylistService.RemoveOldTracksAsync(spotifyPlaylist, spotifyTracks);
 
-		this._logger.LogInformation("Playlist syncer ended");
+		this._logger.LogWarning("Playlist syncer ended");
 	}
 }
