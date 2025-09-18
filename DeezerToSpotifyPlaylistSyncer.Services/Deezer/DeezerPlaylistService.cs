@@ -35,11 +35,8 @@ public class DeezerPlaylistService(
 		foreach (var id in ids)
 		{
 			var response = await this._httpClient.GetAsync($"track/{id}");
-			if (!response.IsSuccessStatusCode)
-			{
-				var test = await response.Content.ReadAsStringAsync();
-				this._logger.LogWarning("{Test}", test);
-			}
+			var test = await response.Content.ReadAsStringAsync();
+			this._logger.LogWarning("{Test}", test);
 
 			var detailedTrack = await response.Content.ReadFromJsonAsync<DeezerTrack>();
 			if (detailedTrack is not null)
