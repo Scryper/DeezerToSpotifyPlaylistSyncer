@@ -1,4 +1,5 @@
 ﻿using System.Net.Http.Json;
+using System.Text.Json;
 using DeezerToSpotifyPlaylistSyncer.Interfaces.Deezer.Configuration;
 using DeezerToSpotifyPlaylistSyncer.Interfaces.Deezer.Models;
 using DeezerToSpotifyPlaylistSyncer.Interfaces.Deezer.Services;
@@ -33,7 +34,14 @@ public class DeezerPlaylistService(
 		var detailedTracks = new List<DeezerTrack>();
 		foreach (var id in ids)
 		{
-			var detailedTrack = await this._httpClient.GetFromJsonAsync<DeezerTrack>($"track/{id}");
+			var response = await this._httpClient.GetAsync($"track/{id}");
+			if (!response.IsSuccessStatusCode)
+			{
+				var test = await response.Content.ReadAsStringAsync();
+				this._logger.LogWarning("{Test}", test);
+			}
+
+			var detailedTrack = await response.Content.ReadFromJsonAsync<DeezerTrack>();
 			if (detailedTrack is not null)
 			{
 				detailedTracks.Add(detailedTrack);
