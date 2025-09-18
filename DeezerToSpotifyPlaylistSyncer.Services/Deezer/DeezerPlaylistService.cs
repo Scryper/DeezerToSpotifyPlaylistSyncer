@@ -32,11 +32,18 @@ public class DeezerPlaylistService(
 	public async Task<IEnumerable<DeezerTrack>> GetDetailedTracksAsync(IEnumerable<long> ids)
 	{
 		var detailedTracks = new List<DeezerTrack>();
-		foreach (var id in ids)
+		using var idsEnumerator = ids.GetEnumerator();
+		while (idsEnumerator.MoveNext())
 		{
-			var response = await this._httpClient.GetAsync($"track/{id}");
-			var test = await response.Content.ReadAsStringAsync();
-			this._logger.LogWarning("{Test}", test);
+			var response = await this._httpClient.GetAsync($"track/{idsEnumerator.Current}");
+			while (!response.IsSuccessStatusCode)
+			{
+				response = await this._httpClient.GetAsync($"track/{idsEnumerator.Current}");
+				var test = await response.Content.ReadAsStringAsync();
+				this._logger.LogWarning("{Test}", test);
+				this._logger.LogWarning("Backing off for 5s");
+				await Task.Delay(5000);
+			}
 
 			var detailedTrack = await response.Content.ReadFromJsonAsync<DeezerTrack>();
 			if (detailedTrack is not null)
