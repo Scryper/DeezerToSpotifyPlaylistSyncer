@@ -42,7 +42,7 @@ public class DeezerPlaylistService(
 			while (!response.IsSuccessStatusCode)
 			{
 				response = await this._httpClient.GetAsync($"track/{idsEnumerator.Current}");
-				var test = await response.Content.ReadAsStringAsync();
+				test = await response.Content.ReadAsStringAsync();
 				this._logger.LogWarning("{Test}", test);
 				this._logger.LogWarning("Backing off for 5s");
 				await Task.Delay(5000);
