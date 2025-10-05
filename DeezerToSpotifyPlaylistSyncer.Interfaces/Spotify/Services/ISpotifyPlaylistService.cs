@@ -7,6 +7,6 @@ public interface ISpotifyPlaylistService
 {
 	Task<SpotifyPlaylist?> GetPlaylistAsync();
 	Task<IList<SpotifyTrack>> GetTrackIdsAsync(IEnumerable<DeezerTrack> detailedDeezerTracks);
-	Task AddMissingTracksAsync(SpotifyPlaylist spotifyPlaylist, IList<SpotifyTrack> spotifyTracks);
-	Task RemoveOldTracksAsync(SpotifyPlaylist spotifyPlaylist, IList<SpotifyTrack> spotifyTracks);
+	Task<IList<SpotifyTrack>?> AddMissingTracksAsync(SpotifyPlaylist spotifyPlaylist, IList<SpotifyTrack> spotifyTracks);
+	Task<IList<SpotifyTrack>?> RemoveOldTracksAsync(SpotifyPlaylist spotifyPlaylist, IList<SpotifyTrack> spotifyTracks);
 }

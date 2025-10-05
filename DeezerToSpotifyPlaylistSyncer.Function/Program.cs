@@ -2,9 +2,12 @@ using System.Net.Http.Headers;
 using DeezerToSpotifyPlaylistSyncer.Function.Authentication;
 using DeezerToSpotifyPlaylistSyncer.Interfaces.Deezer.Configuration;
 using DeezerToSpotifyPlaylistSyncer.Interfaces.Deezer.Services;
+using DeezerToSpotifyPlaylistSyncer.Interfaces.Mails.Configuration;
+using DeezerToSpotifyPlaylistSyncer.Interfaces.Mails.Services;
 using DeezerToSpotifyPlaylistSyncer.Interfaces.Spotify.Configuration;
 using DeezerToSpotifyPlaylistSyncer.Interfaces.Spotify.Services;
 using DeezerToSpotifyPlaylistSyncer.Services.Deezer;
+using DeezerToSpotifyPlaylistSyncer.Services.Mails;
 using DeezerToSpotifyPlaylistSyncer.Services.Spotify;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Builder;
@@ -35,5 +38,8 @@ builder.Services.AddHttpClient<ISpotifyPlaylistService, SpotifyPlaylistService>(
 		spotifyConfiguration[nameof(SpotifyConfiguration.ClientSecret)] ?? throw new InvalidOperationException("Configuration is null"),
 		spotifyConfiguration[nameof(SpotifyConfiguration.RefreshToken)] ?? throw new InvalidOperationException("Configuration is null")).Result);
 });
+
+builder.Services.AddOptions<MailSettings>().Configure<IConfiguration>((settings, configuration) => configuration.GetSection(nameof(MailSettings)).Bind(settings));
+builder.Services.AddScoped<IMailService, MailService>();
 
 await builder.Build().RunAsync();

@@ -35,10 +35,10 @@ public class DeezerPlaylistService(
 		using var idsEnumerator = ids.GetEnumerator();
 		while (idsEnumerator.MoveNext())
 		{
-			var response = await this._httpClient.GetAsync($"track/{idsEnumerator.Current}");
+			var response = await this._httpClient.GetAsync($"track/{idsEnumerator.Current}?strict=on");
 			while (!response.IsSuccessStatusCode)
 			{
-				response = await this._httpClient.GetAsync($"track/{idsEnumerator.Current}");
+				response = await this._httpClient.GetAsync($"track/{idsEnumerator.Current}?strict=on");
 				var test = await response.Content.ReadAsStringAsync();
 				this._logger.LogWarning("{Test}", test);
 				this._logger.LogWarning("Backing off for 5s");

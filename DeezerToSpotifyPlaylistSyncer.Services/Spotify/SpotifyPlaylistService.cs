@@ -9,7 +9,6 @@ using DeezerToSpotifyPlaylistSyncer.Interfaces.Spotify.Configuration;
 using DeezerToSpotifyPlaylistSyncer.Interfaces.Spotify.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace DeezerToSpotifyPlaylistSyncer.Services.Spotify;
 
@@ -66,21 +65,21 @@ public class SpotifyPlaylistService(
 		return ids;
 	}
 
-	public async Task AddMissingTracksAsync(SpotifyPlaylist spotifyPlaylist, IList<SpotifyTrack> spotifyTracks)
+	public async Task<IList<SpotifyTrack>?> AddMissingTracksAsync(SpotifyPlaylist spotifyPlaylist, IList<SpotifyTrack> spotifyTracks)
 	{
 		if (string.IsNullOrWhiteSpace(this._spotifyConfiguration.PlaylistId))
 		{
 			this._logger.LogError("Fatal error : playlist id not set");
-			return;
+			return null;
 		}
 
 		if (spotifyPlaylist.Tracks is null)
 		{
 			this._logger.LogError("Fatal error : there are no tracks in spotify playlist");
-			return;
+			return null;
 		}
 
-		var missingTracks = spotifyTracks.Where(track => !spotifyPlaylist.Tracks.Items.Select(item => item.Track?.Id).Contains(track.Id));
+		var missingTracks = spotifyTracks.Where(track => !spotifyPlaylist.Tracks.Items.Select(item => item.Track?.Id).Contains(track.Id)).ToList();
 		var batches = missingTracks
 			.Select((item, index) => new { item, index })
 			.GroupBy(item => item.index / 100)
@@ -94,23 +93,25 @@ public class SpotifyPlaylistService(
 				new AddTrackRequest { Uris = batch.Select(track => $"spotify:track:{track.Id}") });
 			response.EnsureSuccessStatusCode();
 		}
+
+		return missingTracks;
 	}
 
-	public async Task RemoveOldTracksAsync(SpotifyPlaylist spotifyPlaylist, IList<SpotifyTrack> spotifyTracks)
+	public async Task<IList<SpotifyTrack>?> RemoveOldTracksAsync(SpotifyPlaylist spotifyPlaylist, IList<SpotifyTrack> spotifyTracks)
 	{
 		if (string.IsNullOrWhiteSpace(this._spotifyConfiguration.PlaylistId))
 		{
 			this._logger.LogError("Fatal error : playlist id not set");
-			return;
+			return null;
 		}
 
 		if (spotifyPlaylist.Tracks is null)
 		{
 			this._logger.LogError("Fatal error : there are no tracks in spotify playlist");
-			return;
+			return null;
 		}
 
-		var tracksToRemove = spotifyPlaylist.Tracks.Items.Where(track => !spotifyTracks.Select(sTrack => sTrack.Id).Contains(track.Track?.Id));
+		var tracksToRemove = spotifyPlaylist.Tracks.Items.Where(track => !spotifyTracks.Select(sTrack => sTrack.Id).Contains(track.Track?.Id)).ToList();
 		var batches = tracksToRemove
 			.Select((item, index) => new { item, index })
 			.GroupBy(item => item.index / 100)
@@ -130,6 +131,8 @@ public class SpotifyPlaylistService(
 			var response = await httpClient.SendAsync(request);
 			response.EnsureSuccessStatusCode();
 		}
+
+		return tracksToRemove;
 	}
 
 	private async Task<SpotifyPlaylist?> SearchTrackAsync(IList<string> artists, string track)
