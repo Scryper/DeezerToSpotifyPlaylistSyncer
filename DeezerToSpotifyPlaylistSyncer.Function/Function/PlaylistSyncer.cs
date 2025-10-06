@@ -43,7 +43,7 @@ public class PlaylistSyncer(
 
 		if (addedTracks is not null && removedTracks is not null)
 		{
-			var firstAddedTrack = addedTracks.Except(removedTracks).FirstOrDefault();
+			var firstAddedTrack = addedTracks.ExceptBy(removedTracks.Select(track => track.Name), track => track.Name).FirstOrDefault();
 			if (firstAddedTrack is not null)
 			{
 				var mailResult = await this._mailService.SendMailAsync(new
