@@ -29,8 +29,11 @@ public class PlaylistSyncer(
 			return;
 		}
 
+		this._logger.LogWarning("_deezerPlaylistService.GetDetailedTracksAsync");
 		var detailedDeezerTracks = await this._deezerPlaylistService.GetDetailedTracksAsync(deezerPlaylist.Tracks.Data.Select(data => data.Id));
+		this._logger.LogWarning("_spotifyPlaylistService.GetTrackIdsAsync");
 		var spotifyTracks = await this._spotifyPlaylistService.GetTrackIdsAsync(detailedDeezerTracks);
+		this._logger.LogWarning("_spotifyPlaylistService.GetPlaylistAsync");
 		var spotifyPlaylist = await this._spotifyPlaylistService.GetPlaylistAsync();
 		if (spotifyPlaylist is null)
 		{
@@ -38,7 +41,9 @@ public class PlaylistSyncer(
 			return;
 		}
 
+		this._logger.LogWarning("_spotifyPlaylistService.AddMissingTracksAsync");
 		var addedTracks = await this._spotifyPlaylistService.AddMissingTracksAsync(spotifyPlaylist, spotifyTracks);
+		this._logger.LogWarning("_spotifyPlaylistService.RemoveOldTracksAsync");
 		var removedTracks = await this._spotifyPlaylistService.RemoveOldTracksAsync(spotifyPlaylist, spotifyTracks);
 
 		if (addedTracks is not null && removedTracks is not null)
