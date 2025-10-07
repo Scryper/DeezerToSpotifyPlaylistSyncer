@@ -58,6 +58,7 @@ public class SpotifyPlaylistService(
 			var trackResponse = await this.SearchTrackAsync(deezerTrack.Contributors!.Select(contributor => contributor.Name).ToList(), deezerTrack.Title);
 			if (trackResponse?.Tracks is not null)
 			{
+				this._logger.LogWarning("Found : {Found} - {Artists}", trackResponse.Tracks.Items.First().Name, string.Join(",", trackResponse.Tracks.Items.First().Artists?.Select(a => a.Name) ?? []));
 				ids.Add(trackResponse.Tracks.Items.First());
 			}
 		}
@@ -138,6 +139,7 @@ public class SpotifyPlaylistService(
 	private async Task<SpotifyPlaylist?> SearchTrackAsync(IList<string> artists, string track)
 	{
 		var artistsQuery = string.Join(" ", artists.Select(artist => $"artist:{artist}"));
+		this._logger.LogWarning("Search : {Search}", $"search?q={Uri.EscapeDataString($"{artistsQuery} track:{track}")}&type=track&limit=1");
 		var response = await this._httpClient.GetAsync($"search?q={Uri.EscapeDataString($"{artistsQuery} track:{track}")}&type=track&limit=1");
 		if (response.StatusCode == HttpStatusCode.TooManyRequests)
 		{
