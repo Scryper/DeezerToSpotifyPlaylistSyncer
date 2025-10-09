@@ -1,4 +1,5 @@
-﻿using DeezerToSpotifyPlaylistSyncer.Interfaces.Deezer.Services;
+﻿using System.Text.Json;
+using DeezerToSpotifyPlaylistSyncer.Interfaces.Deezer.Services;
 using DeezerToSpotifyPlaylistSyncer.Interfaces.Mails.Services;
 using DeezerToSpotifyPlaylistSyncer.Interfaces.Spotify.Models;
 using DeezerToSpotifyPlaylistSyncer.Interfaces.Spotify.Services;
@@ -29,11 +30,8 @@ public class PlaylistSyncer(
 			return;
 		}
 
-		this._logger.LogWarning("_deezerPlaylistService.GetDetailedTracksAsync");
 		var detailedDeezerTracks = await this._deezerPlaylistService.GetDetailedTracksAsync(deezerPlaylist.Tracks.Data.Select(data => data.Id));
-		this._logger.LogWarning("_spotifyPlaylistService.GetTrackIdsAsync");
 		var spotifyTracks = await this._spotifyPlaylistService.GetTrackIdsAsync(detailedDeezerTracks);
-		this._logger.LogWarning("_spotifyPlaylistService.GetPlaylistAsync");
 		var spotifyPlaylist = await this._spotifyPlaylistService.GetPlaylistAsync();
 		if (spotifyPlaylist is null)
 		{
@@ -41,11 +39,11 @@ public class PlaylistSyncer(
 			return;
 		}
 
-		this._logger.LogWarning("_spotifyPlaylistService.AddMissingTracksAsync");
 		var addedTracks = await this._spotifyPlaylistService.AddMissingTracksAsync(spotifyPlaylist, spotifyTracks);
-		this._logger.LogWarning("_spotifyPlaylistService.RemoveOldTracksAsync");
 		var removedTracks = await this._spotifyPlaylistService.RemoveOldTracksAsync(spotifyPlaylist, spotifyTracks);
 
+		this._logger.LogWarning(JsonSerializer.Serialize(addedTracks));
+		this._logger.LogWarning(JsonSerializer.Serialize(removedTracks));
 		if (addedTracks is not null && removedTracks is not null)
 		{
 			addedTracks.ToList().ForEach(t => this._logger.LogWarning("Added {Name}", t.Name));
