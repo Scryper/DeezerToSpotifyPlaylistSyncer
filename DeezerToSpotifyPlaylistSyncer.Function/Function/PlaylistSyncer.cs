@@ -47,10 +47,11 @@ public class PlaylistSyncer(
 		if (addedTracks is not null && removedTracks is not null)
 		{
 			addedTracks.ToList().ForEach(t => this._logger.LogWarning("Added {Name}", t.Name));
-			removedTracks.ToList().ForEach(t => this._logger.LogWarning("Removed {Name}", t.Name));
-			var firstAddedTrack = addedTracks.ExceptBy(removedTracks.Select(track => track.Name), track => track.Name).FirstOrDefault();
-			addedTracks.ExceptBy(removedTracks.Select(track => track.Name), track => track.Name).ToList().ForEach(t => this._logger.LogWarning("Track left {Name}", t.Name));
-			this._logger.LogWarning("First track {Name}", firstAddedTrack.Name);
+			removedTracks.ToList().ForEach(t => this._logger.LogWarning("Removed {Name}", t.Track?.Name));
+			var firstAddedTrack = addedTracks.ExceptBy(removedTracks.Select(track => track.Track?.Name), track => track.Name).FirstOrDefault();
+			addedTracks.ExceptBy(removedTracks.Select(track => track.Track?.Name), track => track.Name).ToList().ForEach(t => this._logger.LogWarning("Track left {Name}", t.Name));
+			this._logger.LogWarning("First track {Value}", JsonSerializer.Serialize(firstAddedTrack));
+			this._logger.LogWarning("First track {Name}", firstAddedTrack?.Name);
 			if (firstAddedTrack is not null)
 			{
 				/*var mailResult = await this._mailService.SendMailAsync(new
